@@ -1,0 +1,11 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<project version="4">
+  <component name="ProjectModuleManager">
+    <modules>
+      <module fileurl="file://$PROJECT_DIR$/example/app.iml" filepath="$PROJECT_DIR$/example/app.iml" />
+      <module fileurl="file://$PROJECT_DIR$/powertape.iml" filepath="$PROJECT_DIR$/powertape.iml" />
+      <module fileurl="file://$PROJECT_DIR$/powertape-compiler/powertape-processor.iml" filepath="$PROJECT_DIR$/powertape-compiler/powertape-processor.iml" />
+      <module fileurl="file://$PROJECT_DIR$/powertape-lib/powertape-lib.iml" filepath="$PROJECT_DIR$/powertape-lib/powertape-lib.iml" />
+    </modules>
+  </component>
+</project>

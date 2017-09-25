@@ -1,0 +1,10 @@
+apply plugin: 'java-library'
+
+dependencies {
+    implementation fileTree(dir: 'libs', include: ['*.jar'])
+
+    compile project(':powertape-lib')
+}
+
+sourceCompatibility = "1.8"
+targetCompatibility = "1.8"
