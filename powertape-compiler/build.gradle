@@ -1,9 +1,9 @@
 apply plugin: 'java-library'
 
 dependencies {
-    implementation fileTree(dir: 'libs', include: ['*.jar'])
-
-    compile project(':powertape-lib')
+    implementation fileTree(include: ['*.jar'], dir: 'libs')
+    api project(':powertape-lib')
+    implementation 'com.squareup:javapoet:1.9.0'
 }
 
 sourceCompatibility = "1.8"
