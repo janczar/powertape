@@ -15,6 +15,8 @@ public class Provider {
 
     public final ProviderDependency[] dependencies;
 
+    public boolean hasInjectedFields;
+
     public Provider(final Element element, final ProviderType type, final DeclaredType providedClass) {
         this(element, type, providedClass, new ProviderDependency[0]);
     }

@@ -39,11 +39,12 @@ public class PowertapeProcessor extends AbstractProcessor {
 
         providers.clear();
         providers.process(env.getElementsAnnotatedWith(Provide.class));
-        providers.generateCode(filer);
 
         injectors.clear();
         injectors.process(env.getElementsAnnotatedWith(Inject.class));
         injectors.resolve(providers);
+
+        providers.generateCode(filer);
         injectors.generateCode(filer);
 
         return true;
