@@ -8,9 +8,11 @@ import java.util.Map;
 
 public class Powertape {
 
-    private static Map<String, Method> injectMethods = new HashMap<>();
+    private static final Map<String, Method> injectMethods = new HashMap<>();
 
-    public static void inject(Object target) {
+    private static final Map<String, Object> mocks = new HashMap<>();
+
+    public static void inject(final Object target) {
 
         String className = target.getClass().getName();
         Method injectMethod = injectMethods.get(className);
@@ -37,4 +39,22 @@ public class Powertape {
 
     }
 
+    public static void mock(final Object mock) {
+        if (mock == null) {
+            throw new IllegalArgumentException("Mock is null!");
+        }
+        String mockClassName = mock.getClass().getName();
+        mocks.put(mockClassName, mock);
+        for (Class<?> interfaceClass : mock.getClass().getInterfaces()) {
+            mocks.put(interfaceClass.getName(), mock);
+        }
+    }
+
+    public static <T> T getMock(Class<T> mockClass) {
+        Object registeredMock = mocks.get(mockClass.getName());
+        if (registeredMock != null && mockClass.isInstance(registeredMock)) {
+            return (T)registeredMock;
+        }
+        return null;
+    }
 }

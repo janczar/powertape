@@ -19,6 +19,8 @@ import javax.lang.model.element.TypeElement;
 import javax.lang.model.element.VariableElement;
 import javax.lang.model.type.DeclaredType;
 import javax.lang.model.util.ElementFilter;
+import javax.lang.model.util.Elements;
+import javax.lang.model.util.Types;
 
 public class Injectors {
 
@@ -35,9 +37,9 @@ public class Injectors {
         }
     }
 
-    public void resolve(final Providers providers) {
+    public void resolve(final Elements elements, final Providers providers) {
         for (Injector injector : injectors.values()) {
-            injector.resolve(providers);
+            injector.resolve(elements, providers);
         }
     }
 

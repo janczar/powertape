@@ -18,7 +18,10 @@ import javax.annotation.processing.RoundEnvironment;
 import javax.annotation.processing.SupportedAnnotationTypes;
 import javax.annotation.processing.SupportedSourceVersion;
 import javax.lang.model.SourceVersion;
+import javax.lang.model.element.Element;
 import javax.lang.model.element.TypeElement;
+import javax.lang.model.util.Elements;
+import javax.lang.model.util.Types;
 import javax.tools.Diagnostic;
 import javax.tools.JavaFileObject;
 
@@ -29,6 +32,8 @@ public class PowertapeProcessor extends AbstractProcessor {
     private Messager messager;
 
     private Filer filer;
+
+    private Elements elements;
 
     private Providers providers = new Providers();
 
@@ -42,7 +47,7 @@ public class PowertapeProcessor extends AbstractProcessor {
 
         injectors.clear();
         injectors.process(env.getElementsAnnotatedWith(Inject.class));
-        injectors.resolve(providers);
+        injectors.resolve(elements, providers);
 
         providers.generateCode(filer);
         injectors.generateCode(filer);
@@ -56,6 +61,7 @@ public class PowertapeProcessor extends AbstractProcessor {
 
         messager = processingEnv.getMessager();
         filer = processingEnv.getFiler();
+        elements = processingEnv.getElementUtils();
 
         Log.setMessager(messager);
     }
