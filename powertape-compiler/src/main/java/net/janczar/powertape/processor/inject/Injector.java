@@ -16,6 +16,8 @@ import javax.lang.model.element.Modifier;
 import javax.lang.model.element.VariableElement;
 import javax.lang.model.type.DeclaredType;
 import javax.lang.model.type.TypeKind;
+import javax.lang.model.util.Elements;
+import javax.lang.model.util.Types;
 
 public class Injector {
 
@@ -44,14 +46,14 @@ public class Injector {
         injectedFields.add(new InjectedField(field.getEnclosingElement(), field.getSimpleName().toString(), TypeUtil.getQualifiedName(field.asType())));
     }
 
-    public void resolve(final Providers providers) {
+    public void resolve(final Elements elements, final Providers providers) {
         Provider provider = providers.getProvider(TypeUtil.getQualifiedName(injectedClass));
         if (provider != null) {
             provider.hasInjectedFields = true;
         }
 
         for (Iterator<InjectedField> it = injectedFields.iterator(); it.hasNext();) {
-            if (!Resolver.resolve(providers, it.next())) {
+            if (!Resolver.resolve(elements, providers, it.next())) {
                 it.remove();
             }
         }

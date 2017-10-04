@@ -38,6 +38,11 @@ public class ProviderCodeGen {
             params.delete(params.length() - 2, params.length());
         }
 
+        provideMethodBuilder.addStatement(providedClassName+" mock = net.janczar.powertape.Powertape.getMock(" + providedClassName + ".class)");
+        provideMethodBuilder.beginControlFlow("if (mock != null)");
+        provideMethodBuilder.addStatement("return mock");
+        provideMethodBuilder.endControlFlow();
+
         if (provider.type == ProviderType.CONSTRUCTOR) {
             String instanceClassName = ((ConstructorProvider)provider).instanceClassName;
             provideMethodBuilder.addStatement (
