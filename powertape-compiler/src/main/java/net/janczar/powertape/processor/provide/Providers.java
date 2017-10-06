@@ -6,6 +6,7 @@ import com.squareup.javapoet.JavaFile;
 import net.janczar.powertape.processor.Log;
 import net.janczar.powertape.processor.TypeUtil;
 import net.janczar.powertape.processor.codegen.ProviderCodeGen;
+import net.janczar.powertape.annotation.Singleton;
 
 import java.io.IOException;
 import java.util.ArrayList;
@@ -33,6 +34,7 @@ public class Providers {
     }
 
     public void process(final Collection<? extends Element> provideElements) {
+
         for (ExecutableElement constructor : ElementFilter.constructorsIn(provideElements)) {
             TypeElement classElement = (TypeElement)constructor.getEnclosingElement();
 
@@ -54,13 +56,20 @@ public class Providers {
                 dependencies[i] = new ProviderDependency(parameterName, (DeclaredType)parameter.asType());
             }
 
-            for (TypeMirror implementedInterface : classElement.getInterfaces()) {
-                String interfaceName = TypeUtil.getQualifiedName(implementedInterface);
-                addProvider(new ConstructorProvider(constructor, (DeclaredType)implementedInterface, instanceClassName, dependencies));
+            Scope scope = Scope.DEFAULT;
+            Singleton singletonAnnotation = constructor.getAnnotation(Singleton.class);
+            if (singletonAnnotation != null) {
+                scope = Scope.SINGLETON;
             }
 
-            addProvider(new ConstructorProvider(constructor, (DeclaredType)classElement.asType(), instanceClassName, dependencies));
+            for (TypeMirror implementedInterface : classElement.getInterfaces()) {
+                String interfaceName = TypeUtil.getQualifiedName(implementedInterface);
+                addProvider(new ConstructorProvider(constructor, scope, (DeclaredType)implementedInterface, instanceClassName, dependencies));
+            }
+
+            addProvider(new ConstructorProvider(constructor, scope, (DeclaredType)classElement.asType(), instanceClassName, dependencies));
         }
+
     }
 
     public void generateCode(Filer filer) {

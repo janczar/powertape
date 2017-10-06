@@ -15,13 +15,36 @@
         <LinearLayout
             android:orientation="vertical"
             android:layout_width="match_parent"
-            android:layout_height="match_parent">
+            android:layout_height="match_parent"
+            android:padding="16dp">
 
-            <Button
-                android:id="@+id/main_button_scopes"
+            <TextView
                 android:layout_width="match_parent"
                 android:layout_height="wrap_content"
-                android:text="Scopes"/>
+                android:text="Default scope:"
+                android:textSize="14dp"/>
+
+            <TextView
+                android:id="@+id/scopes_default"
+                android:layout_width="match_parent"
+                android:layout_height="wrap_content"
+                android:textSize="20dp"
+                android:layout_marginBottom="16dp"
+                android:text=""/>
+
+            <TextView
+                android:layout_width="match_parent"
+                android:layout_height="wrap_content"
+                android:text="Singleton scope:"
+                android:textSize="14dp"/>
+
+            <TextView
+                android:id="@+id/scopes_singleton"
+                android:layout_width="match_parent"
+                android:layout_height="wrap_content"
+                android:textSize="20dp"
+                android:layout_marginBottom="16dp"
+                android:text=""/>
 
         </LinearLayout>
 
