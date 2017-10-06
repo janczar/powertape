@@ -8,8 +8,8 @@ public class ConstructorProvider extends Provider {
 
     public final String instanceClassName;
 
-    public ConstructorProvider(final ExecutableElement constructor, final DeclaredType providedClass, final String instanceClassName, final ProviderDependency[] constructorArguments) {
-        super(constructor, ProviderType.CONSTRUCTOR, providedClass, constructorArguments);
+    public ConstructorProvider(final ExecutableElement constructor, final Scope scope, final DeclaredType providedClass, final String instanceClassName, final ProviderDependency[] constructorArguments) {
+        super(constructor, ProviderType.CONSTRUCTOR, scope, providedClass, constructorArguments);
         this.instanceClassName = instanceClassName;
     }
 

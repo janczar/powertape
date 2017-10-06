@@ -15,15 +15,18 @@ public class Provider {
 
     public final ProviderDependency[] dependencies;
 
+    public final Scope scope;
+
     public boolean hasInjectedFields;
 
-    public Provider(final Element element, final ProviderType type, final DeclaredType providedClass) {
-        this(element, type, providedClass, new ProviderDependency[0]);
+    public Provider(final Element element, final ProviderType type, final Scope scope, final DeclaredType providedClass) {
+        this(element, type, scope, providedClass, new ProviderDependency[0]);
     }
 
-    public Provider(final Element element, final ProviderType type, final DeclaredType providedClass, final ProviderDependency[] dependencies) {
+    public Provider(final Element element, final ProviderType type, final Scope scope, final DeclaredType providedClass, final ProviderDependency[] dependencies) {
         this.element = element;
         this.type = type;
+        this.scope = scope;
         this.providedClass = providedClass;
         this.dependencies = dependencies;
     }
