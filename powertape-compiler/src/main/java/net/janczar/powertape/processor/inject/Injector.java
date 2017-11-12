@@ -13,6 +13,7 @@ import java.util.Iterator;
 import java.util.List;
 
 import javax.lang.model.element.Modifier;
+import javax.lang.model.element.TypeElement;
 import javax.lang.model.element.VariableElement;
 import javax.lang.model.type.DeclaredType;
 import javax.lang.model.type.TypeKind;
@@ -43,7 +44,7 @@ public class Injector {
             return;
         }
 
-        injectedFields.add(new InjectedField(field.getEnclosingElement(), field.getSimpleName().toString(), TypeUtil.getQualifiedName(field.asType())));
+        injectedFields.add(new InjectedField((TypeElement)field.getEnclosingElement(), field.getSimpleName().toString(), (DeclaredType)field.asType(), TypeUtil.getQualifiedName(field.asType())));
     }
 
     public void resolve(final Elements elements, final Providers providers) {
@@ -53,7 +54,7 @@ public class Injector {
         }
 
         for (Iterator<InjectedField> it = injectedFields.iterator(); it.hasNext();) {
-            if (!Resolver.resolve(elements, providers, it.next())) {
+            if (!Resolver.resolveField(elements, providers, it.next())) {
                 it.remove();
             }
         }

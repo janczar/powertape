@@ -3,10 +3,13 @@ package net.janczar.powertape.processor.provide;
 
 import com.squareup.javapoet.JavaFile;
 
+import net.janczar.powertape.annotation.Scope;
 import net.janczar.powertape.processor.Log;
 import net.janczar.powertape.processor.TypeUtil;
 import net.janczar.powertape.processor.codegen.ProviderCodeGen;
 import net.janczar.powertape.annotation.Singleton;
+import net.janczar.powertape.processor.inject.Injectors;
+import net.janczar.powertape.processor.resolve.Resolver;
 
 import java.io.IOException;
 import java.util.ArrayList;
@@ -24,10 +27,13 @@ import javax.lang.model.type.DeclaredType;
 import javax.lang.model.type.TypeKind;
 import javax.lang.model.type.TypeMirror;
 import javax.lang.model.util.ElementFilter;
+import javax.lang.model.util.Elements;
 
 public class Providers {
 
     private final Map<String, List<Provider>> providers = new HashMap<>();
+
+    private final List<Provider> all = new ArrayList<>();
 
     public void clear() {
         providers.clear();
@@ -56,18 +62,29 @@ public class Providers {
                 dependencies[i] = new ProviderDependency(parameterName, (DeclaredType)parameter.asType());
             }
 
-            Scope scope = Scope.DEFAULT;
             Singleton singletonAnnotation = constructor.getAnnotation(Singleton.class);
+            Scope scopeAnnotation = constructor.getAnnotation(Scope.class);
+
+            if (singletonAnnotation != null && scopeAnnotation != null) {
+                Log.error("Singleton and Scope annotations can't be used at the same time!", constructor);
+                continue;
+            }
+
+            ProviderScope providerScope = null;
             if (singletonAnnotation != null) {
-                scope = Scope.SINGLETON;
+                providerScope = new ProviderScope(ProviderScope.Type.SINGLETON);
+            } else if (scopeAnnotation != null) {
+                providerScope = new ProviderScope(ProviderScope.Type.TYPE, TypeUtil.getScopeClass(constructor));
+            } else {
+                providerScope = new ProviderScope(ProviderScope.Type.DEFAULT);
             }
 
             for (TypeMirror implementedInterface : classElement.getInterfaces()) {
                 String interfaceName = TypeUtil.getQualifiedName(implementedInterface);
-                addProvider(new ConstructorProvider(constructor, scope, (DeclaredType)implementedInterface, instanceClassName, dependencies));
+                addProvider(new ConstructorProvider(constructor, providerScope, (DeclaredType)implementedInterface, (DeclaredType)classElement.asType(), dependencies));
             }
 
-            addProvider(new ConstructorProvider(constructor, scope, (DeclaredType)classElement.asType(), instanceClassName, dependencies));
+            addProvider(new ConstructorProvider(constructor, providerScope, (DeclaredType)classElement.asType(), (DeclaredType)classElement.asType(), dependencies));
         }
 
     }
@@ -91,6 +108,16 @@ public class Providers {
         return list.get(0);
     }
 
+    public List<Provider> all() {
+        return all;
+    }
+
+    public void resolve(final Injectors injectors) {
+        for (Provider provider : all) {
+            Resolver.verifyScope(this, injectors, provider);
+        }
+    }
+
     private void addProvider(final Provider provider) {
         String providedClassName = ((TypeElement)provider.providedClass.asElement()).getQualifiedName().toString();
         List<Provider> providersList = providers.get(providedClassName);
@@ -99,5 +126,6 @@ public class Providers {
             providers.put(providedClassName, providersList);
         }
         providersList.add(provider);
+        all.add(provider);
     }
 }

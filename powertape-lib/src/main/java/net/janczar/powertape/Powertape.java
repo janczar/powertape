@@ -32,9 +32,9 @@ public class Powertape {
         try {
             injectMethod.invoke(null, target);
         } catch (InvocationTargetException e) {
-            throw new RuntimeException("Could not inkoke inject code for "+className+"!");
+            throw new RuntimeException("Could not inkoke inject code for "+className+"!", e);
         } catch (IllegalAccessException e) {
-            throw new RuntimeException("Could not inkoke inject code for "+className+"!");
+            throw new RuntimeException("Could not inkoke inject code for "+className+"!", e);
         }
 
     }

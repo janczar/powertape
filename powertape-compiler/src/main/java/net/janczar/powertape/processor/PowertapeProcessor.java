@@ -42,12 +42,16 @@ public class PowertapeProcessor extends AbstractProcessor {
     @Override
     public boolean process(final Set<? extends TypeElement> annotations, final RoundEnvironment env) {
 
+        TypeUtil.processingStarted(elements);
+
         providers.clear();
         providers.process(env.getElementsAnnotatedWith(Provide.class));
 
         injectors.clear();
         injectors.process(env.getElementsAnnotatedWith(Inject.class));
         injectors.resolve(elements, providers);
+
+        providers.resolve(injectors);
 
         providers.generateCode(filer);
         injectors.generateCode(filer);
@@ -64,19 +68,5 @@ public class PowertapeProcessor extends AbstractProcessor {
         elements = processingEnv.getElementUtils();
 
         Log.setMessager(messager);
-    }
-
-    private void writeSourceFile(final String className, final String text, final TypeElement originatingType) {
-        try {
-            JavaFileObject sourceFile = filer.createSourceFile(className, originatingType);
-            Writer writer = sourceFile.openWriter();
-            try {
-                writer.write(text);
-            } finally {
-                writer.close();
-            }
-        } catch (IOException e) {
-            messager.printMessage(Diagnostic.Kind.ERROR, "Could not write source file for "+className+", "+e.getMessage());
-        }
     }
 }
