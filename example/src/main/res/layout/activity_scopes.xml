@@ -21,7 +21,7 @@
             <TextView
                 android:layout_width="match_parent"
                 android:layout_height="wrap_content"
-                android:text="Default scope:"
+                android:text="Default providerScope:"
                 android:textSize="14dp"/>
 
             <TextView
@@ -35,7 +35,7 @@
             <TextView
                 android:layout_width="match_parent"
                 android:layout_height="wrap_content"
-                android:text="Singleton scope:"
+                android:text="Singleton providerScope:"
                 android:textSize="14dp"/>
 
             <TextView

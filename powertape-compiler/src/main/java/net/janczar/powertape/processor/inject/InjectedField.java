@@ -2,18 +2,24 @@ package net.janczar.powertape.processor.inject;
 
 
 import javax.lang.model.element.Element;
+import javax.lang.model.element.TypeElement;
+import javax.lang.model.type.DeclaredType;
+import javax.lang.model.type.TypeMirror;
 
 public class InjectedField {
 
-    public final Element classElement;
+    public final TypeElement containingClass;
 
     public final String name;
 
-    public final String className;
+    public final DeclaredType type;
 
-    public InjectedField(final Element classElement, final String name, final String className) {
-        this.classElement = classElement;
+    public final String typeName;
+
+    public InjectedField(final TypeElement containingClass, final String name, final DeclaredType type, final String typeName) {
+        this.containingClass = containingClass;
         this.name = name;
-        this.className = className;
+        this.type = type;
+        this.typeName = typeName;
     }
 }

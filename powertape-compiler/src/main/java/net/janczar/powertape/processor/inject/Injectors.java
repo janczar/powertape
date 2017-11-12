@@ -4,6 +4,7 @@ package net.janczar.powertape.processor.inject;
 import com.squareup.javapoet.JavaFile;
 
 import net.janczar.powertape.processor.Log;
+import net.janczar.powertape.processor.TypeUtil;
 import net.janczar.powertape.processor.codegen.InjectorCodeGen;
 import net.janczar.powertape.processor.provide.Providers;
 
@@ -33,7 +34,7 @@ public class Injectors {
     public void process(final Collection<? extends Element> injectElements) {
         List<VariableElement> injectedFields = ElementFilter.fieldsIn(injectElements);
         for (VariableElement field : injectedFields) {
-            getInjector((DeclaredType)field.getEnclosingElement().asType()).addInjectedField(field);
+            createInjector((DeclaredType)field.getEnclosingElement().asType()).addInjectedField(field);
         }
     }
 
@@ -54,8 +55,17 @@ public class Injectors {
         }
     }
 
-    private Injector getInjector(final DeclaredType injectedType) {
-        String injectedClassName = ((TypeElement)injectedType.asElement()).getQualifiedName().toString();
+    public Injector getInjector(final DeclaredType injectedType) {
+        String injectedClassName = TypeUtil.getQualifiedName(injectedType);
+        return injectors.get(injectedClassName);
+    }
+
+    public Collection<Injector> all() {
+        return injectors.values();
+    }
+
+    private Injector createInjector(final DeclaredType injectedType) {
+        String injectedClassName = TypeUtil.getQualifiedName(injectedType);
         Injector injector = injectors.get(injectedClassName);
         if (injector == null) {
             injector = new Injector(injectedType);
