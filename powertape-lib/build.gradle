@@ -1,4 +1,41 @@
+
+
+plugins {
+    id "com.jfrog.bintray" version "1.7.3"
+}
+
 apply plugin: 'java-library'
+apply plugin: 'maven'
+apply plugin: 'maven-publish'
+
+publishing {
+    publications {
+        MyPublication(MavenPublication) {
+            from components.java
+            groupId 'net.janczar'
+            artifactId 'powertape'
+            version '0.1'
+        }
+    }
+}
+
+bintray {
+    user = 'janczar'
+    key = 'd8a1fc7b56b790e616cd4ed9b4cbc2755c66aa1e'
+    publications = ['MyPublication']
+    pkg {
+        repo = 'AndroidLib'
+        name = 'powertape-lib'
+        licenses = ['Apache-2.0']
+        vcsUrl = 'https://github.com/janczar/powertape'
+
+        version {
+            name = '0.1'
+            desc = 'Powertape lib version 0.1'
+            released  = new Date()
+        }
+    }
+}
 
 dependencies {
     implementation fileTree(dir: 'libs', include: ['*.jar'])
