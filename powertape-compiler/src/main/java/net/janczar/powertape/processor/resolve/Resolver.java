@@ -5,7 +5,7 @@ import net.janczar.powertape.processor.TypeUtil;
 import net.janczar.powertape.processor.inject.Injector;
 import net.janczar.powertape.processor.inject.Injectors;
 import net.janczar.powertape.processor.provide.ConstructorProvider;
-import net.janczar.powertape.processor.Log;
+import net.janczar.powertape.log.Log;
 import net.janczar.powertape.processor.inject.InjectedField;
 import net.janczar.powertape.processor.provide.Provider;
 import net.janczar.powertape.processor.provide.ProviderDependency;
@@ -28,7 +28,7 @@ public class Resolver {
         if (provider == null) {
             TypeElement providerClass = elements.getTypeElement(injectedField.typeName+"Provider");
             if (providerClass == null) {
-                Log.error(String.format("Field %s cannot be injected, class %s is not provided!", injectedField.name, injectedField.typeName), injectedField.containingClass);
+                Log.error(String.format("Field %s.%s cannot be injected, class %s is not provided!", injectedField.containingClass.getSimpleName(), injectedField.name, injectedField.typeName), injectedField.containingClass);
                 return false;
             }
             return true;

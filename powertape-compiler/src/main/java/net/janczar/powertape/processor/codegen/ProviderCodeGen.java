@@ -11,6 +11,7 @@ import com.squareup.javapoet.TypeSpec;
 import net.janczar.powertape.Powertape;
 import net.janczar.powertape.internal.InjectionContext;
 import net.janczar.powertape.internal.ScopeMap;
+import net.janczar.powertape.log.Log;
 import net.janczar.powertape.processor.provide.ConstructorProvider;
 import net.janczar.powertape.processor.provide.Provider;
 import net.janczar.powertape.processor.provide.ProviderDependency;
@@ -23,6 +24,8 @@ import javax.lang.model.element.TypeElement;
 public class ProviderCodeGen {
 
     public static JavaFile generateCode(final Provider provider) {
+
+        Log.note("Generating provider for "+provider.providedClass.toString());
 
         ClassName injectionContextClass = ClassName.get(InjectionContext.class);
         ClassName providedClass = CodeUtil.toClassName(provider.providedClass);

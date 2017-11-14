@@ -8,6 +8,7 @@ import com.squareup.javapoet.TypeName;
 import com.squareup.javapoet.TypeSpec;
 
 import net.janczar.powertape.internal.InjectionContext;
+import net.janczar.powertape.log.Log;
 import net.janczar.powertape.processor.inject.InjectedField;
 import net.janczar.powertape.processor.inject.Injector;
 
@@ -35,12 +36,16 @@ public class InjectorCodeGen {
                 .addParameter(TypeName.get(injector.injectedClass), "target", Modifier.FINAL)
                 .returns(TypeName.VOID);
 
+        ClassName logClass = ClassName.get(Log.class);
+        injectInContextMethodBuilder.addStatement("$T.i($S,$S)", logClass, "Powertape", "Injecting into type "+injectedClassName);
+
         for (InjectedField injectedField : injector.injectedFields) {
             ClassName injectedClass = ClassName.get((TypeElement)((DeclaredType)injectedField.type).asElement());
             ClassName providerClass = ClassName.get(injectedClass.packageName(), injectedClass.simpleName()+"Provider");
             injectInContextMethodBuilder.addStatement(
                 "target.$L = $T.provide(context)", injectedField.name, providerClass
             );
+            injectInContextMethodBuilder.addStatement("$T.i($S,$S + target.$L)", logClass, "Powertape", "target."+injectedField.name+" = ", injectedField.name);
         }
 
         String classPackage = injectedClassName.substring(0, injectedClassName.lastIndexOf("."));

@@ -4,7 +4,7 @@ package net.janczar.powertape.processor.provide;
 import com.squareup.javapoet.JavaFile;
 
 import net.janczar.powertape.annotation.Scope;
-import net.janczar.powertape.processor.Log;
+import net.janczar.powertape.log.Log;
 import net.janczar.powertape.processor.TypeUtil;
 import net.janczar.powertape.processor.codegen.ProviderCodeGen;
 import net.janczar.powertape.annotation.Singleton;
@@ -13,21 +13,17 @@ import net.janczar.powertape.processor.resolve.Resolver;
 
 import java.io.IOException;
 import java.util.ArrayList;
-import java.util.Collection;
 import java.util.HashMap;
 import java.util.List;
 import java.util.Map;
 
 import javax.annotation.processing.Filer;
-import javax.lang.model.element.Element;
 import javax.lang.model.element.ExecutableElement;
 import javax.lang.model.element.TypeElement;
 import javax.lang.model.element.VariableElement;
 import javax.lang.model.type.DeclaredType;
 import javax.lang.model.type.TypeKind;
 import javax.lang.model.type.TypeMirror;
-import javax.lang.model.util.ElementFilter;
-import javax.lang.model.util.Elements;
 
 public class Providers {
 
@@ -39,54 +35,54 @@ public class Providers {
         providers.clear();
     }
 
-    public void process(final Collection<? extends Element> provideElements) {
+    public void process(final List<ExecutableElement> constructors) {
+        for (ExecutableElement constructor : constructors) {
+            process(constructor);
+        }
+    }
 
-        for (ExecutableElement constructor : ElementFilter.constructorsIn(provideElements)) {
-            TypeElement classElement = (TypeElement)constructor.getEnclosingElement();
+    public void process(final ExecutableElement constructor) {
+        TypeElement classElement = (TypeElement)constructor.getEnclosingElement();
 
-            String instanceClassName = classElement.getQualifiedName().toString();
+        String instanceClassName = classElement.getQualifiedName().toString();
 
-            List<? extends VariableElement> parameters = constructor.getParameters();
-            ProviderDependency[] dependencies = new ProviderDependency[parameters.size()];
-            for (int i=0; i<parameters.size(); i++) {
-                VariableElement parameter = parameters.get(i);
-                String parameterName = parameter.getSimpleName().toString();
+        List<? extends VariableElement> parameters = constructor.getParameters();
+        ProviderDependency[] dependencies = new ProviderDependency[parameters.size()];
+        for (int i=0; i<parameters.size(); i++) {
+            VariableElement parameter = parameters.get(i);
+            String parameterName = parameter.getSimpleName().toString();
 
-                if (parameter.asType().getKind() != TypeKind.DECLARED) {
-                    Log.error(String.format("@Provide constructor parameter %s must not be of simple type!", parameterName), constructor);
-                    continue;
-                }
-
-                String parameterClassName = TypeUtil.getQualifiedName(parameter.asType());
-
-                dependencies[i] = new ProviderDependency(parameterName, (DeclaredType)parameter.asType());
-            }
-
-            Singleton singletonAnnotation = constructor.getAnnotation(Singleton.class);
-            Scope scopeAnnotation = constructor.getAnnotation(Scope.class);
-
-            if (singletonAnnotation != null && scopeAnnotation != null) {
-                Log.error("Singleton and Scope annotations can't be used at the same time!", constructor);
+            if (parameter.asType().getKind() != TypeKind.DECLARED) {
+                Log.error(String.format("@Provide constructor parameter %s must not be of simple type!", parameterName), constructor);
                 continue;
             }
 
-            ProviderScope providerScope = null;
-            if (singletonAnnotation != null) {
-                providerScope = new ProviderScope(ProviderScope.Type.SINGLETON);
-            } else if (scopeAnnotation != null) {
-                providerScope = new ProviderScope(ProviderScope.Type.TYPE, TypeUtil.getScopeClass(constructor));
-            } else {
-                providerScope = new ProviderScope(ProviderScope.Type.DEFAULT);
-            }
-
-            for (TypeMirror implementedInterface : classElement.getInterfaces()) {
-                String interfaceName = TypeUtil.getQualifiedName(implementedInterface);
-                addProvider(new ConstructorProvider(constructor, providerScope, (DeclaredType)implementedInterface, (DeclaredType)classElement.asType(), dependencies));
-            }
-
-            addProvider(new ConstructorProvider(constructor, providerScope, (DeclaredType)classElement.asType(), (DeclaredType)classElement.asType(), dependencies));
+            dependencies[i] = new ProviderDependency(parameterName, (DeclaredType)parameter.asType());
         }
 
+        Singleton singletonAnnotation = constructor.getAnnotation(Singleton.class);
+        Scope scopeAnnotation = constructor.getAnnotation(Scope.class);
+
+        if (singletonAnnotation != null && scopeAnnotation != null) {
+            Log.error("Singleton and Scope annotations can't be used at the same time!", constructor);
+            return;
+        }
+
+        ProviderScope providerScope = null;
+        if (singletonAnnotation != null) {
+            providerScope = new ProviderScope(ProviderScope.Type.SINGLETON);
+        } else if (scopeAnnotation != null) {
+            providerScope = new ProviderScope(ProviderScope.Type.TYPE, TypeUtil.getScopeClass(constructor));
+        } else {
+            providerScope = new ProviderScope(ProviderScope.Type.DEFAULT);
+        }
+
+        for (TypeMirror implementedInterface : classElement.getInterfaces()) {
+            String interfaceName = TypeUtil.getQualifiedName(implementedInterface);
+            addProvider(new ConstructorProvider(constructor, providerScope, (DeclaredType)implementedInterface, (DeclaredType)classElement.asType(), dependencies));
+        }
+
+        addProvider(new ConstructorProvider(constructor, providerScope, (DeclaredType)classElement.asType(), (DeclaredType)classElement.asType(), dependencies));
     }
 
     public void generateCode(Filer filer) {

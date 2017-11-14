@@ -3,12 +3,11 @@ package net.janczar.powertape.processor.codegen;
 
 import com.squareup.javapoet.ClassName;
 
-import net.janczar.powertape.processor.Log;
+import net.janczar.powertape.log.Log;
 
 import javax.lang.model.element.Element;
 import javax.lang.model.element.TypeElement;
 import javax.lang.model.type.DeclaredType;
-import javax.lang.model.type.TypeMirror;
 
 public class CodeUtil {
 

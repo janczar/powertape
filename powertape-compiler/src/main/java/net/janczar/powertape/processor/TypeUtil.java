@@ -2,10 +2,10 @@ package net.janczar.powertape.processor;
 
 
 import net.janczar.powertape.annotation.Scope;
+import net.janczar.powertape.log.Log;
 
 import java.util.Map;
 
-import javax.annotation.processing.ProcessingEnvironment;
 import javax.lang.model.element.AnnotationMirror;
 import javax.lang.model.element.AnnotationValue;
 import javax.lang.model.element.Element;

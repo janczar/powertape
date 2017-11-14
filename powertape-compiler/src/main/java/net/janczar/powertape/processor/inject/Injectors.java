@@ -3,7 +3,7 @@ package net.janczar.powertape.processor.inject;
 
 import com.squareup.javapoet.JavaFile;
 
-import net.janczar.powertape.processor.Log;
+import net.janczar.powertape.log.Log;
 import net.janczar.powertape.processor.TypeUtil;
 import net.janczar.powertape.processor.codegen.InjectorCodeGen;
 import net.janczar.powertape.processor.provide.Providers;
@@ -15,13 +15,9 @@ import java.util.List;
 import java.util.Map;
 
 import javax.annotation.processing.Filer;
-import javax.lang.model.element.Element;
-import javax.lang.model.element.TypeElement;
 import javax.lang.model.element.VariableElement;
 import javax.lang.model.type.DeclaredType;
-import javax.lang.model.util.ElementFilter;
 import javax.lang.model.util.Elements;
-import javax.lang.model.util.Types;
 
 public class Injectors {
 
@@ -31,8 +27,7 @@ public class Injectors {
         injectors.clear();
     }
 
-    public void process(final Collection<? extends Element> injectElements) {
-        List<VariableElement> injectedFields = ElementFilter.fieldsIn(injectElements);
+    public void process(final List<VariableElement> injectedFields) {
         for (VariableElement field : injectedFields) {
             createInjector((DeclaredType)field.getEnclosingElement().asType()).addInjectedField(field);
         }

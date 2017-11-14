@@ -1,13 +1,12 @@
 package net.janczar.powertape.processor.inject;
 
 
-import net.janczar.powertape.processor.Log;
+import net.janczar.powertape.log.Log;
 import net.janczar.powertape.processor.provide.Provider;
 import net.janczar.powertape.processor.provide.Providers;
 import net.janczar.powertape.processor.resolve.Resolver;
 import net.janczar.powertape.processor.TypeUtil;
 
-import java.lang.reflect.Type;
 import java.util.ArrayList;
 import java.util.Iterator;
 import java.util.List;
@@ -18,7 +17,6 @@ import javax.lang.model.element.VariableElement;
 import javax.lang.model.type.DeclaredType;
 import javax.lang.model.type.TypeKind;
 import javax.lang.model.util.Elements;
-import javax.lang.model.util.Types;
 
 public class Injector {
 

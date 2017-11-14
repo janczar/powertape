@@ -1,6 +1,8 @@
 package net.janczar.powertape;
 
 
+import net.janczar.powertape.log.Log;
+
 import java.lang.reflect.InvocationTargetException;
 import java.lang.reflect.Method;
 import java.util.HashMap;
@@ -45,14 +47,24 @@ public class Powertape {
         }
         String mockClassName = mock.getClass().getName();
         mocks.put(mockClassName, mock);
+        Log.i("Powertape", "Registering mock for class "+mockClassName);
+        if (mockClassName.contains("$$")) {
+            Class superClass = mock.getClass().getSuperclass();
+            if (superClass != null) {
+                mocks.put(superClass.getName(), mock);
+                Log.i("Powertape", "Registering mock for class "+superClass.getName());
+            }
+        }
         for (Class<?> interfaceClass : mock.getClass().getInterfaces()) {
             mocks.put(interfaceClass.getName(), mock);
+            Log.i("Powertape", "Registering mock for interface "+interfaceClass.getName());
         }
     }
 
     public static <T> T getMock(Class<T> mockClass) {
         Object registeredMock = mocks.get(mockClass.getName());
         if (registeredMock != null && mockClass.isInstance(registeredMock)) {
+            Log.i("Powertape", "Using mock for class "+mockClass.getName());
             return (T)registeredMock;
         }
         return null;
