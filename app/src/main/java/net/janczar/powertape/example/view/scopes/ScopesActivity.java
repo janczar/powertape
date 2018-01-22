@@ -46,7 +46,7 @@ public class ScopesActivity extends AppCompatActivity implements ScopesView {
     @Override
     protected void onResume() {
         super.onResume();
-        presenter.bind(this);
+        presenter.attachView(this);
     }
 
     @Override

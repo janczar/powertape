@@ -52,6 +52,11 @@ public class PowertapeProcessor extends AbstractProcessor {
 
         findElements(env, providedConstructors, injectedFields);
 
+        Log.note("Provided constructors:");
+        for (ExecutableElement con : providedConstructors) {
+            Log.note("    "+con.getEnclosingElement().getSimpleName());
+        }
+
         providers.clear();
         providers.process(providedConstructors);
 

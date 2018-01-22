@@ -1,4 +1,5 @@
 apply plugin: 'com.android.application'
+apply plugin: 'kotlin-android'
 
 android {
     compileSdkVersion 26
@@ -40,7 +41,7 @@ dependencies {
     annotationProcessor "com.jakewharton:butterknife-compiler:8.8.1"
 
     implementation project(':powertape-lib')
-    annotationProcessor project(':powertape-compiler')
+    kapt project(':powertape-compiler')
 
     testImplementation 'junit:junit:4.12'
     testImplementation project(':powertape-lib')
