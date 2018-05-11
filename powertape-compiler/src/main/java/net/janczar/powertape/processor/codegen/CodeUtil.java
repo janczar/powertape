@@ -16,7 +16,7 @@ public class CodeUtil {
         if (typeElement instanceof TypeElement) {
             return ClassName.get((TypeElement)typeElement);
         } else {
-            Log.error("Not a class type!", typeElement);
+            Log.error("Not a class injectedType!", typeElement);
             return ClassName.get(Object.class);
         }
     }

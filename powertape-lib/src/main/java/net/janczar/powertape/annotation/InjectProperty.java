@@ -7,8 +7,7 @@ import java.lang.annotation.Target;
 
 import kotlin.annotation.AnnotationTarget;
 
-@Target(ElementType.FIELD)
 @Retention(RetentionPolicy.RUNTIME)
-//@kotlin.annotation.Target(allowedTargets = {AnnotationTarget.FIELD,AnnotationTarget.PROPERTY})
-public @interface Inject {
+@kotlin.annotation.Target(allowedTargets = {AnnotationTarget.PROPERTY})
+public @interface InjectProperty {
 }

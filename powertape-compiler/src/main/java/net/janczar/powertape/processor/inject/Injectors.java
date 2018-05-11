@@ -41,6 +41,10 @@ public class Injectors {
 
     public void generateCode(Filer filer) {
         for (Injector injector : injectors.values()) {
+            Log.note("Generating injector for "+injector.injectedClass.asElement().getSimpleName());
+            for (InjectedField field : injector.injectedFields) {
+                Log.note("    with field "+field.name+" of injectedType "+field.typeName);
+            }
             JavaFile javaFile = InjectorCodeGen.generateCode(injector);
             try {
                 javaFile.writeTo(filer);

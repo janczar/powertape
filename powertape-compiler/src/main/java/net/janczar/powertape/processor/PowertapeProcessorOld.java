@@ -4,6 +4,7 @@ package net.janczar.powertape.processor;
 import net.janczar.powertape.annotation.Inject;
 import net.janczar.powertape.annotation.Provide;
 import net.janczar.powertape.log.Log;
+import net.janczar.powertape.processor.finder.CodeFinder;
 import net.janczar.powertape.processor.inject.Injectors;
 import net.janczar.powertape.processor.provide.Providers;
 
@@ -30,7 +31,7 @@ import javax.lang.model.util.Elements;
 
 @SupportedSourceVersion(SourceVersion.RELEASE_8)
 @SupportedAnnotationTypes({"net.janczar.powertape.annotation.Provide", "net.janczar.powertape.annotation.Inject"})
-public class PowertapeProcessor extends AbstractProcessor {
+public class PowertapeProcessorOld extends AbstractProcessor {
 
     private Messager messager;
 
@@ -45,30 +46,28 @@ public class PowertapeProcessor extends AbstractProcessor {
     @Override
     public boolean process(final Set<? extends TypeElement> annotations, final RoundEnvironment env) {
 
-        TypeUtil.processingStarted(elements);
-
-        List<ExecutableElement> providedConstructors = new ArrayList<>();
-        List<VariableElement> injectedFields = new ArrayList<>();
-
-        findElements(env, providedConstructors, injectedFields);
-
-        Log.note("Provided constructors:");
-        for (ExecutableElement con : providedConstructors) {
-            Log.note("    "+con.getEnclosingElement().getSimpleName());
-        }
-
-        providers.clear();
-        providers.process(providedConstructors);
-
-        injectors.clear();
-        injectors.process(injectedFields);
-
-
-        injectors.resolve(elements, providers);
-        providers.resolve(injectors);
-
-        providers.generateCode(filer);
-        injectors.generateCode(filer);
+//        Log.note("Starting powertape processing!");
+//        CodeFinder.Companion.searchCode(env);
+//
+//        TypeUtil.processingStarted(elements);
+//
+//        List<ExecutableElement> providedConstructors = new ArrayList<>();
+//        List<VariableElement> injectedFields = new ArrayList<>();
+//
+//        findElements(env, providedConstructors, injectedFields);
+//
+//        providers.clear();
+//        providers.process(providedConstructors);
+//
+//        injectors.clear();
+//        injectors.process(injectedFields);
+//
+//
+//        injectors.resolve(elements, providers);
+//        providers.resolve(injectors);
+//
+//        providers.generateCode(filer);
+//        injectors.generateCode(filer);
 
         return true;
     }
@@ -86,29 +85,36 @@ public class PowertapeProcessor extends AbstractProcessor {
 
     private void findElements(final RoundEnvironment env, final List<ExecutableElement> providedConstructors, final List<VariableElement> injectedFields) {
         for (ExecutableElement constructor : ElementFilter.constructorsIn(env.getElementsAnnotatedWith(Provide.class))) {
+            Log.note("Found constructor annotated with @Provide: " + constructor.getEnclosingElement().getSimpleName());
             providedConstructors.add(constructor);
+            findElementsInConstructor(constructor, providedConstructors, injectedFields, "    ");
         }
         for (VariableElement field : ElementFilter.fieldsIn(env.getElementsAnnotatedWith(Inject.class))) {
             if (!injectedFields.contains(field)) {
                 injectedFields.add(field);
             }
             DeclaredType type = (DeclaredType)field.asType();
-            findElements ( (TypeElement)type.asElement(), providedConstructors, injectedFields);
+            Log.note("Found injected field "+field.getSimpleName()+" of injectedType "+type.asElement().getSimpleName()+" in "+field.getEnclosingElement().getSimpleName());
+            findElementsInType ( (TypeElement)type.asElement(), providedConstructors, injectedFields, "    ");
         }
     }
 
-    private void findElements(final TypeElement injectedType, final List<ExecutableElement> providedConstructors, final List<VariableElement> injectedFields) {
+    private void findElementsInType(final TypeElement injectedType, final List<ExecutableElement> providedConstructors, final List<VariableElement> injectedFields, String tabs) {
         TypeElement providerClass = elements.getTypeElement(injectedType.getQualifiedName()+"Provider");
         if (providerClass != null) {
+            Log.note(tabs+"Provider for  " + injectedType.getQualifiedName()+" already exists.");
             return;
         }
+        Log.note(tabs+"There is no provider for  " + injectedType.getQualifiedName());
 
         for (Element element : injectedType.getEnclosedElements()) {
             if (element.getKind() == ElementKind.CONSTRUCTOR) {
                 ExecutableElement constructor = (ExecutableElement)element;
                 Provide provide = constructor.getAnnotation(Provide.class);
                 if (provide != null && !providedConstructors.contains(constructor)) {
+                    Log.note(tabs+"Found constructor annotated with @Provide for "+injectedType.getQualifiedName());
                     providedConstructors.add(constructor);
+                    findElementsInConstructor(constructor, providedConstructors, injectedFields, tabs);
                 }
             } else if (element.getKind() == ElementKind.FIELD) {
                 VariableElement injectedField = (VariableElement)element;
@@ -119,10 +125,19 @@ public class PowertapeProcessor extends AbstractProcessor {
                     }
 
                     DeclaredType type = (DeclaredType)injectedField.asType();
+                    Log.note(tabs+"Found injected field "+injectedField.getSimpleName()+" of injectedType "+type.asElement().getSimpleName());
                     TypeElement typeElement = (TypeElement)type.asElement();
-                    findElements ( typeElement, providedConstructors, injectedFields);
+                    findElementsInType ( typeElement, providedConstructors, injectedFields, tabs + "    ");
                 }
             }
+        }
+    }
+
+    private void findElementsInConstructor(final ExecutableElement constructor, final List<ExecutableElement> providedConstructors, final List<VariableElement> injectedFields, String tabs) {
+        for (VariableElement variableElement : constructor.getParameters()) {
+            DeclaredType type = (DeclaredType)variableElement.asType();
+            Log.note(tabs+"Injected constructor of "+constructor.getEnclosingElement().getSimpleName()+" has field "+variableElement.getSimpleName()+" of injectedType "+type.asElement().getSimpleName());
+            findElementsInType ( (TypeElement)type.asElement(), providedConstructors, injectedFields, tabs+"    ");
         }
     }
 }

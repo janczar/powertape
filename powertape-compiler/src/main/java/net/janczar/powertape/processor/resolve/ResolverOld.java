@@ -20,7 +20,7 @@ import javax.lang.model.element.TypeElement;
 import javax.lang.model.type.DeclaredType;
 import javax.lang.model.util.Elements;
 
-public class Resolver {
+public class ResolverOld {
 
     public static boolean resolveField(final Elements elements, final Providers providers, final InjectedField injectedField) {
 
@@ -51,7 +51,7 @@ public class Resolver {
             }
             if (unsatisfied.size() > 0) {
                 StringBuilder errorMessage = new StringBuilder();
-                errorMessage.append("Class requires scope of type "+wantedScope+", however there are "+unsatisfied.size()+" injection paths that do not provide instance of that class:\n\n");
+                errorMessage.append("Class requires scope of injectedType "+wantedScope+", however there are "+unsatisfied.size()+" injection paths that do not provide instance of that class:\n\n");
                 for (int i=0; i<unsatisfied.size(); i++) {
                     errorMessage.append(String.valueOf(i+1)).append(") ").append(unsatisfied.get(i).toString()).append("\n");
                 }
@@ -122,9 +122,13 @@ public class Resolver {
             if (providerClass == null) {
                 if (sourceProvider.type == ProviderType.CONSTRUCTOR) {
                     Log.error(String.format("Constructor's argument %s cannot be resolved, class %s is not provided!", dependency.name, dependencyClassName), ((ConstructorProvider) sourceProvider).element);
+                } else {
+                    Log.error(String.format("Provider's dependency %s cannot be resolved, class %s is not provided!",dependency.name,dependencyClassName), dependency.dependencyClass.asElement());
                 }
+                return false;
+            } else {
+                return true;
             }
-            return false;
         }
 
         return resolveProvider(elements, providers, provider);
@@ -168,10 +172,10 @@ public class Resolver {
                 }
                 if (item instanceof InjectorPathItem) {
                     InjectorPathItem injector = (InjectorPathItem)item;
-                    result.append(injector.injector.injectedClass.toString()).append(" : field ").append(injector.field.name).append(" of type ").append(injector.field.type.toString()).append("\n");
+                    result.append(injector.injector.injectedClass.toString()).append(" : field ").append(injector.field.name).append(" of injectedType ").append(injector.field.type.toString()).append("\n");
                 } else if (item instanceof ProviderPathItem) {
                     ProviderPathItem provider = (ProviderPathItem)item;
-                    result.append(provider.provider.providedClass.toString()).append(" : constructor's param ").append(provider.dependency.name).append(" of type ").append(provider.dependency.dependencyClass.toString()).append("\n");
+                    result.append(provider.provider.providedClass.toString()).append(" : constructor's param ").append(provider.dependency.name).append(" of injectedType ").append(provider.dependency.dependencyClass.toString()).append("\n");
                 }
             }
             return result.toString();

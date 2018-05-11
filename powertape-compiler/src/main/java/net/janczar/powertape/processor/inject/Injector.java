@@ -4,7 +4,7 @@ package net.janczar.powertape.processor.inject;
 import net.janczar.powertape.log.Log;
 import net.janczar.powertape.processor.provide.Provider;
 import net.janczar.powertape.processor.provide.Providers;
-import net.janczar.powertape.processor.resolve.Resolver;
+import net.janczar.powertape.processor.resolve.ResolverOld;
 import net.janczar.powertape.processor.TypeUtil;
 
 import java.util.ArrayList;
@@ -30,7 +30,7 @@ public class Injector {
 
     public void addInjectedField(final VariableElement field) {
         if (field.asType().getKind() != TypeKind.DECLARED) {
-            Log.error(String.format("Field %s cannot be injected because it is of simple type!", field.getSimpleName()), field.getEnclosingElement());
+            Log.error(String.format("Field %s cannot be injected because it is of simple injectedType!", field.getSimpleName()), field.getEnclosingElement());
             return;
         }
         if (field.getModifiers().contains(Modifier.PRIVATE)) {
@@ -42,7 +42,9 @@ public class Injector {
             return;
         }
 
-        injectedFields.add(new InjectedField((TypeElement)field.getEnclosingElement(), field.getSimpleName().toString(), (DeclaredType)field.asType(), TypeUtil.getQualifiedName(field.asType())));
+        InjectedField injectedField = new InjectedField((TypeElement)field.getEnclosingElement(), field.getSimpleName().toString(), (DeclaredType)field.asType(), TypeUtil.getQualifiedName(field.asType()));
+        injectedFields.add(injectedField);
+        Log.note("Added field "+injectedField.name+" of injectedType "+injectedField.type+" to injector for "+injectedClass.asElement().getSimpleName());
     }
 
     public void resolve(final Elements elements, final Providers providers) {
@@ -52,7 +54,9 @@ public class Injector {
         }
 
         for (Iterator<InjectedField> it = injectedFields.iterator(); it.hasNext();) {
-            if (!Resolver.resolveField(elements, providers, it.next())) {
+            InjectedField field = it.next();
+            if (!ResolverOld.resolveField(elements, providers, field)) {
+                Log.note("Removing field "+field.name+" from injector for "+injectedClass.asElement().getSimpleName());
                 it.remove();
             }
         }

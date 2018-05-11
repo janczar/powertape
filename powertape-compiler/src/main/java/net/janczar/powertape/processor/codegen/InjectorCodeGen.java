@@ -37,7 +37,7 @@ public class InjectorCodeGen {
                 .returns(TypeName.VOID);
 
         ClassName logClass = ClassName.get(Log.class);
-        injectInContextMethodBuilder.addStatement("$T.i($S,$S)", logClass, "Powertape", "Injecting into type "+injectedClassName);
+        injectInContextMethodBuilder.addStatement("$T.i($S,$S)", logClass, "Powertape", "Injecting into injectedType "+injectedClassName);
 
         for (InjectedField injectedField : injector.injectedFields) {
             ClassName injectedClass = ClassName.get((TypeElement)((DeclaredType)injectedField.type).asElement());

@@ -19,6 +19,7 @@ import java.util.List;
 
 import io.reactivex.Observable;
 import io.reactivex.ObservableTransformer;
+import io.reactivex.Single;
 
 import static org.mockito.Matchers.any;
 import static org.mockito.Matchers.anyList;
@@ -53,7 +54,7 @@ public class MainPresenterTest {
     public void setUp() {
         MockitoAnnotations.initMocks(this);
         //when(getMessagesUseCase.execute(any())).thenReturn(Observable.just(MESSAGES));
-        when(messagesRepository.getMessages()).thenReturn(Observable.just(MESSAGES));
+        when(messagesRepository.getMessages()).thenReturn(Single.just(MESSAGES));
         when(useCaseComposer.apply()).thenReturn(observable -> observable);
 
         //Powertape.mock(getMessagesUseCase);
@@ -61,7 +62,7 @@ public class MainPresenterTest {
         Powertape.mock(useCaseComposer);
         Powertape.inject(this);
 
-        presenter.bind(view);
+        presenter.attachView(view);
     }
 
     @Test

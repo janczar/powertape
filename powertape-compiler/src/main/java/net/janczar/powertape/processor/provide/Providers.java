@@ -9,7 +9,7 @@ import net.janczar.powertape.processor.TypeUtil;
 import net.janczar.powertape.processor.codegen.ProviderCodeGen;
 import net.janczar.powertape.annotation.Singleton;
 import net.janczar.powertape.processor.inject.Injectors;
-import net.janczar.powertape.processor.resolve.Resolver;
+import net.janczar.powertape.processor.resolve.ResolverOld;
 
 import java.io.IOException;
 import java.util.ArrayList;
@@ -53,7 +53,7 @@ public class Providers {
             String parameterName = parameter.getSimpleName().toString();
 
             if (parameter.asType().getKind() != TypeKind.DECLARED) {
-                Log.error(String.format("@Provide constructor parameter %s must not be of simple type!", parameterName), constructor);
+                Log.error(String.format("@Provide constructor parameter %s must not be of simple injectedType!", parameterName), constructor);
                 continue;
             }
 
@@ -110,7 +110,7 @@ public class Providers {
 
     public void resolve(final Injectors injectors) {
         for (Provider provider : all) {
-            Resolver.verifyScope(this, injectors, provider);
+            ResolverOld.verifyScope(this, injectors, provider);
         }
     }
 

@@ -9,10 +9,11 @@ public class Log {
 
     public static enum LogLevel {
         ERROR,
-        INFO
+        INFO,
+        DEBUG
     }
 
-    private static LogLevel logLevel = LogLevel.ERROR;
+    private static LogLevel logLevel = LogLevel.DEBUG;
 
     private static Messager messager;
 
@@ -22,8 +23,14 @@ public class Log {
         Log.messager = messager;
     }
 
+    public static void debug(final String note) {
+        if (messager != null && (logLevel == LogLevel.DEBUG)) {
+            messager.printMessage(Diagnostic.Kind.NOTE, note);
+        }
+    }
+
     public static void note(final String note) {
-        if (messager != null) {
+        if (messager != null && (logLevel == LogLevel.DEBUG || logLevel == LogLevel.INFO)) {
             messager.printMessage(Diagnostic.Kind.NOTE, note);
         }
     }
@@ -36,7 +43,7 @@ public class Log {
 
     public static void error(final String error, final Element element) {
         if (messager != null) {
-            messager.printMessage(Diagnostic.Kind.ERROR, error, element);
+            messager.printMessage(Diagnostic.Kind.ERROR, element.getSimpleName() + ": " + error);
         }
     }
 
