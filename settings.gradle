@@ -1,1 +1,1 @@
-include ':example', ':powertape-lib', ':powertape-compiler'
+include ':app', ':data', ':domain', ':powertape-lib', ':powertape-compiler'
